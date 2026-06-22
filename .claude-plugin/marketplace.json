@@ -1,0 +1,18 @@
+{
+  "name": "gobuid",
+  "owner": {
+    "name": "Tim Kao",
+    "email": "tim.kao@gobuid.com"
+  },
+  "plugins": [
+    {
+      "name": "gobuid-mcp",
+      "source": {
+        "source": "git",
+        "url": "https://gitlab.gobuid.com/ai-ops/gobuid-mcp.git"
+      },
+      "description": "GoBuid 表單與流程建置 MCP server",
+      "version": "0.1.0"
+    }
+  ]
+}
