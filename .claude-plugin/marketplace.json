@@ -7,10 +7,7 @@
   "plugins": [
     {
       "name": "gobuid-mcp",
-      "source": {
-        "source": "git",
-        "url": "https://gitlab.gobuid.com/ai-ops/gobuid-mcp.git"
-      },
+      "source": "./plugins/gobuid-mcp",
       "description": "GoBuid 表單與流程建置 MCP server",
       "version": "0.1.0"
     }

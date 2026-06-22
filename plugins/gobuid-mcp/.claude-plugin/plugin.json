@@ -1,0 +1,9 @@
+{
+  "name": "gobuid-mcp",
+  "version": "0.1.0",
+  "description": "GoBuid 表單與流程建置 MCP server，提供 500+ API tools",
+  "author": {
+    "name": "Tim Kao",
+    "email": "tim.kao@gobuid.com"
+  }
+}
