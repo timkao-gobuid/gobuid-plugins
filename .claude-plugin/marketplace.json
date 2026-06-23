@@ -6,15 +6,9 @@
   },
   "plugins": [
     {
-      "name": "gobuid-mcp",
-      "source": "./plugins/gobuid-mcp",
-      "description": "GoBuid 表單與流程建置 MCP server",
-      "version": "0.1.0"
-    },
-    {
-      "name": "gobuid-skills",
-      "source": "./plugins/gobuid-skills",
-      "description": "GoBuid 團隊共用 Skills — 表單範本、workflow、批次任務",
+      "name": "gobuid",
+      "source": "./plugins/gobuid",
+      "description": "GoBuid 平台整合 — MCP server（500+ API tools）+ 表單、workflow、任務 skills",
       "version": "1.0.0"
     }
   ]
