@@ -1,8 +1,8 @@
 {
   "name": "gobuid",
   "displayName": "GoBuid",
-  "version": "1.0.1",
-  "description": "GoBuid platform integration — MCP server (500+ API tools) plus skills for form templates, workflows, and batch tasks",
+  "version": "1.0.2",
+  "description": "GoBuid platform integration — MCP server (500+ API tools) plus skills for form templates and workflows",
   "author": {
     "name": "Tim Kao",
     "email": "tim.kao@gobuid.com"

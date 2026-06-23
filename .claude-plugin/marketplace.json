@@ -9,8 +9,8 @@
       "name": "gobuid",
       "displayName": "GoBuid",
       "source": "./plugins/gobuid",
-      "description": "GoBuid platform integration — MCP server (500+ API tools) plus form, workflow, and task skills",
-      "version": "1.0.1"
+      "description": "GoBuid platform integration — MCP server (500+ API tools) plus form and workflow skills",
+      "version": "1.0.2"
     }
   ]
 }
