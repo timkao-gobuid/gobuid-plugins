@@ -1,6 +1,6 @@
 ---
 name: gobuid-setup-tasks
-description: GoBuid 專案中批次建立 task 與 sub task，並指派負責人。適合需要一次設定多個工作項目的情境，例如建築業的施工計畫。透過 MCP tool 操作。
+description: Batch-create tasks and sub-tasks in a GoBuid project and assign owners. Suited for setting up many work items at once, e.g. a construction schedule. Operates via MCP tools.
 allowed-tools: mcp__gobuid-mcp-sse__*
 ---
 

@@ -1,6 +1,6 @@
 ---
 name: gobuid-form-template
-description: GoBuid 表單範本的建立與更新工作流程。支援從截圖、PDF、xlsx 或文字描述解析欄位結構，引導用戶設定欄位類型與選項，最後透過 MCP tool 建立或更新 form template。
+description: Workflow for creating and updating GoBuid form templates. Parses field structure from screenshots, PDF, xlsx, or text descriptions, guides the user through field types and options, then creates or updates the form template via MCP tools.
 allowed-tools: mcp__gobuid-mcp-sse__*, Bash(uuidgen *), Bash(for *)
 ---
 

@@ -1,6 +1,6 @@
 ---
 name: gobuid-form-workflow
-description: GoBuid 表單的 workflow 設定流程。建構 React Flow 節點圖（step/button/close 等 nodes + edges），設定 team tag，並確認相關成員已加入對應的 team tag。透過 MCP tool 操作。
+description: Workflow for configuring GoBuid form workflows. Builds the React Flow node graph (step/button/close nodes + edges), sets team tags, and verifies relevant members have joined the corresponding team tag. Operates via MCP tools.
 allowed-tools: mcp__gobuid-mcp-sse__*, Bash(uuidgen *), Bash(for *)
 ---
 

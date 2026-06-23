@@ -8,7 +8,7 @@
     {
       "name": "gobuid",
       "source": "./plugins/gobuid",
-      "description": "GoBuid 平台整合 — MCP server（500+ API tools）+ 表單、workflow、任務 skills",
+      "description": "GoBuid platform integration — MCP server (500+ API tools) plus form, workflow, and task skills",
       "version": "1.0.0"
     }
   ]
