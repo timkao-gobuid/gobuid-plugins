@@ -13,10 +13,7 @@
     },
     {
       "name": "gobuid-skills",
-      "source": {
-        "source": "git",
-        "url": "https://gitlab.gobuid.com/ai-ops/gobuid-skills.git"
-      },
+      "source": "./plugins/gobuid-skills",
       "description": "GoBuid 團隊共用 Skills — 表單範本、workflow、批次任務",
       "version": "1.0.0"
     }
