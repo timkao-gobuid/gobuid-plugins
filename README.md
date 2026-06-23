@@ -1,6 +1,6 @@
 # GoBuid Plugin Marketplace
 
-GoBuid 內部的 Claude Code plugin marketplace。目前提供 `gobuid-mcp` —— 讓 AI agent 透過 500+ API tools 操作 GoBuid 平台。
+GoBuid 內部的 Claude Code plugin marketplace。提供 `gobuid` plugin —— 包含 MCP server（500+ API tools 操作 GoBuid 平台）以及一組封裝常見流程的 skills（表單、任務、專案、工項、群組）。
 
 服務 endpoint：`https://mcp.gobuid.com/mcp`（HTTP MCP server，OAuth 登入）
 
@@ -52,6 +52,24 @@ set_context — 設定 groupId
 ```
 
 之後即可呼叫任意 API tool（例如 project_get_self_projects）。Token 到期會自動 refresh。
+
+---
+
+## Skills
+
+plugin 內附下列 skills，封裝常見流程；裝好 plugin 後在 Claude Code 直接用 `/<skill-name>` 觸發，或用自然語言描述需求自動帶出。全部透過上述 MCP server 操作，使用前需先 `set_context` 設定 group。
+
+| Skill                    | 用途                                                                                  |
+| ------------------------ | ------------------------------------------------------------------------------------- |
+| `gobuid-list-groups`     | 列出登入者所屬的 groups，並可切換 group context（groupId 來源）                       |
+| `gobuid-list-projects`   | 列出某 group 底下使用者參與的 projects（取 projectId）                                |
+| `gobuid-create-project`  | 建立 project；用 geocoding 綁定地址與座標，建立前確認 name / 起訖日 / 座標 / 地址齊全 |
+| `gobuid-create-activity` | 在 project 底下建立工項（activity），含數量 + 單位、% 單位規則、起訖日把關            |
+| `gobuid-task-crud`       | task / subtask 的建立、查詢、更新、刪除、狀態與排序（v2 API）                         |
+| `gobuid-form-template`   | 從截圖 / PDF / xlsx / 文字建立或更新表單範本                                          |
+| `gobuid-form-workflow`   | 設定表單審核流程（React Flow 節點圖）、team tag 與成員                                |
+
+> 常見串接：`gobuid-list-groups` → `gobuid-list-projects` → `gobuid-create-project` / `gobuid-create-activity` / `gobuid-task-crud`；建表單則 `gobuid-form-template` → `gobuid-form-workflow`。
 
 ---
 
