@@ -7,9 +7,10 @@
   "plugins": [
     {
       "name": "gobuid",
+      "displayName": "GoBuid",
       "source": "./plugins/gobuid",
       "description": "GoBuid platform integration — MCP server (500+ API tools) plus form, workflow, and task skills",
-      "version": "1.0.0"
+      "version": "1.0.1"
     }
   ]
 }
