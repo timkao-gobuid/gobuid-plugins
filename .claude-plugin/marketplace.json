@@ -10,6 +10,15 @@
       "source": "./plugins/gobuid-mcp",
       "description": "GoBuid 表單與流程建置 MCP server",
       "version": "0.1.0"
+    },
+    {
+      "name": "gobuid-skills",
+      "source": {
+        "source": "git",
+        "url": "https://gitlab.gobuid.com/ai-ops/gobuid-skills.git"
+      },
+      "description": "GoBuid 團隊共用 Skills — 表單範本、workflow、批次任務",
+      "version": "1.0.0"
     }
   ]
 }

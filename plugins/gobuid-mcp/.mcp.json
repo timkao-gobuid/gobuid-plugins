@@ -1,6 +1,6 @@
 {
   "mcpServers": {
-    "gobuid": {
+    "gobuid-mcp-sse": {
       "type": "http",
       "url": "https://mcp.gobuid.com/mcp"
     }
