@@ -1,0 +1,68 @@
+name: version-check
+
+# 確保每個 plugin 的 .claude-plugin/plugin.json 版本，與根目錄
+# .claude-plugin/marketplace.json 裡對應項目的版本一致。
+# 兩者任一漏改都會讓安裝端（Claude Desktop / Code）判斷「已是最新」而更新不到，
+# 所以在此把關：不一致就讓 CI 失敗，push / PR 不過。
+
+on:
+  push:
+    branches: [main]
+    paths:
+      - "**/plugin.json"
+      - ".claude-plugin/marketplace.json"
+      - ".github/workflows/version-check.yml"
+  pull_request:
+    paths:
+      - "**/plugin.json"
+      - ".claude-plugin/marketplace.json"
+      - ".github/workflows/version-check.yml"
+
+jobs:
+  check-versions:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - name: Check plugin.json vs marketplace.json versions
+        run: |
+          python3 - <<'PY'
+          import json, sys, os
+
+          mp = json.load(open(".claude-plugin/marketplace.json"))
+          problems = []
+          checked = 0
+
+          for entry in mp.get("plugins", []):
+              name = entry.get("name", "<unnamed>")
+              mp_ver = entry.get("version")
+              source = entry.get("source", "")
+              # source 形如 "./plugins/gobuid"
+              plugin_json = os.path.join(source, ".claude-plugin", "plugin.json")
+
+              if mp_ver is None:
+                  problems.append(f"[{name}] marketplace.json 缺 version 欄位")
+                  continue
+              if not os.path.isfile(plugin_json):
+                  problems.append(f"[{name}] 找不到 {plugin_json}")
+                  continue
+
+              pj = json.load(open(plugin_json))
+              pj_ver = pj.get("version")
+              checked += 1
+
+              if pj_ver != mp_ver:
+                  problems.append(
+                      f"[{name}] 版本不一致：marketplace.json={mp_ver} "
+                      f"但 {plugin_json}={pj_ver} — 兩邊都要 bump 到同一版"
+                  )
+              else:
+                  print(f"[{name}] OK: {pj_ver}")
+
+          if problems:
+              print("\n版本一致性檢查失敗：", file=sys.stderr)
+              for p in problems:
+                  print("  ✗ " + p, file=sys.stderr)
+              sys.exit(1)
+
+          print(f"\n全部 {checked} 個 plugin 版本一致 ✓")
+          PY
