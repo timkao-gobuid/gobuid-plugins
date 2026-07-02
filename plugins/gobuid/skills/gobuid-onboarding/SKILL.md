@@ -1,7 +1,7 @@
 ---
 name: gobuid-onboarding
 description: Use this to onboard a new GoBuid customer — take one filled-in setup/onboarding spreadsheet (Google Sheet or Excel, the kind Customer Success fills out) and build the customer's whole GoBuid group in one pass instead of creating each item by hand. It covers everything the sheet describes at once: group settings (帳號名稱、工時、地理圍籬/geofence), projects, budget codes, equipment, and member/participant invites. Trigger on intents like: onboard this customer / run project setup / 幫這個客戶做 onboarding、跑 project setup、照這份 sheet 把整個 group（帳號、專案、預算、設備、成員）設定起來、客戶初始設定表批次建到 GoBuid（不要一個一個開）、import the CS onboarding spreadsheet into GoBuid — or just a pasted setup-sheet link with "把資料建到系統/GoBuid". The tell: one spreadsheet → many GoBuid records across several categories. Not for a single project/activity/budget create-or-edit, nor for just reading/exporting a sheet. Always plans and confirms before writing.
-allowed-tools: mcp__gobuid-mcp-sse__*, Bash(gws *)
+allowed-tools: mcp__gobuid-mcp-sse__*, Bash, Read
 ---
 
 ## 使用時機
@@ -22,10 +22,10 @@ allowed-tools: mcp__gobuid-mcp-sse__*, Bash(gws *)
 
 ## 前置條件
 
-1. Claude Code 已連接 `gobuid-mcp-sse` MCP server（第一次呼叫 tool 會自動開瀏覽器 OAuth）。驗證：呼叫 `user_self` 回傳正常。
+1. 已連接 `gobuid-mcp-sse` MCP server（第一次呼叫 tool 會自動開瀏覽器 OAuth）。驗證：呼叫 `user_self` 回傳正常。
 2. **已設定 group context**：`set_context` 選定要 onboard 的 group。所有 group 層級設定（名稱 / geofence / 工時）、equipment、單位、teams 都是 per-group；project 也建在這個 group 底下。沒設先用 `/gobuid-list-groups`。
-3. **本機有 `gws`（Google Workspace CLI）** 且已登入，用來讀 Google Sheet。
-4. **試算表已開放讀取權限**，且是本 skill 預期的結構化格式（六個分頁，見下）。使用者提供 spreadsheet URL 或 ID。
+3. **能讀到那份表**（擇一，見 Step 1）：使用者上傳的 `.xlsx` 附件（最通用，免安裝）、或 Google Sheet 連結 + 本機 `gws`、或 Google connector。**不要假設一定有 `gws`**；沒有就請使用者把表匯出成 `.xlsx` 丟進來。
+4. 表是本 skill 預期的結構化格式（六個分頁，見下）。
 
 ---
 
@@ -54,7 +54,16 @@ allowed-tools: mcp__gobuid-mcp-sse__*, Bash(gws *)
 
 ### Step 1 — 讀取試算表
 
-用 `gws` 一次把所有需要的範圍抓下來（`gws` 的 stdout 前面會多一行 `Using keyring backend`，解析 JSON 前先濾掉）：
+依「使用者給的是什麼、環境有什麼」挑讀法。**不要預設一定有 `gws`** —— 非技術使用者（例如 Sales）多半沒裝。優先順序：
+
+1. **使用者上傳了 `.xlsx` 檔（最通用，Sales 主路徑）** → 直接讀檔，不需 gws。用 `xlsx` skill（或等效工具）把六個分頁（工作表）讀成資料。這條在 Claude Desktop 也能用。
+2. **給的是 Google Sheet 連結，且本機有 `gws`（多半是 Claude Code / 工程師環境）** → 用下面的 `gws` 指令讀。
+3. **給的是 Google Sheet 連結、沒有 gws，但有 Google Drive/Sheets connector（MCP）** → 用 connector 讀。
+4. **以上皆無** → 不要硬試 gws 而失敗。改為請使用者：**把表匯出成 `.xlsx`（Sheet → File → Download → Microsoft Excel）拖進對話**，然後回到路徑 1。
+
+不論哪條路，最後都要得到六個分頁的內容：`General`（`A1:C15`：設定區 + 每週工時表）、`Equipment`、`Budget`、`Activity`、`Projects`、`Participants`。
+
+**路徑 2 的 gws 指令**（stdout 前面會多一行 `Using keyring backend`，解析 JSON 前先濾掉）：
 
 ```bash
 gws sheets spreadsheets values batchGet \
