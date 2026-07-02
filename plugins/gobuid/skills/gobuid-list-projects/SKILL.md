@@ -73,4 +73,3 @@ group「GoBuild 總部」底下的 projects：
 - 找不到任何 project，先確認 `groupId` 是否正確、是否真的有參與該 group 的專案。
 - 取得 `projectId` 後可接續 `/gobuid-task-crud` 等需要 project 的操作。
 - 一律透過 MCP tool 操作，不使用 CLI。
-  </content>

@@ -1,0 +1,19 @@
+{
+  "skill_name": "gobuid-onboarding",
+  "evals": [
+    {
+      "id": 0,
+      "name": "full-sheet-plan",
+      "prompt": "這是客戶的 GoBuid project setup 表：https://docs.google.com/spreadsheets/d/1KlOtSToWJTCDKglpW5ZlnJ24NrJi5wryfWWYLskLM_s/edit?gid=0 — 幫我照這份做 onboarding 設定。先不要真的建立任何東西，列出你會建立哪些內容讓我確認。",
+      "expected_output": "一份分模組的設定計畫：Group 設定(名稱/geofence/工時)、Projects、Budget、Equipment、Participants、Account Owner；並把需處理項目(Site C 無座標、Orphan 對不到專案、% 數量、未知單位 pcs)集中列出；e.g. 範例列被略過。",
+      "files": []
+    },
+    {
+      "id": 1,
+      "name": "onboard-customer-review-first",
+      "prompt": "我要 onboard 一個叫 Acme 的新客戶，Customer Success 的設定表在這裡 https://docs.google.com/spreadsheets/d/1KlOtSToWJTCDKglpW5ZlnJ24NrJi5wryfWWYLskLM_s/edit ，我現在的 group context 已經設好了。幫我看看照這份表會建立哪些設定，動手前先給我一份清單。",
+      "expected_output": "同上，重點在正確解析六個分頁、name→id 對照正確、星期陣列改成星期日開頭、標出需處理項目、略過 e.g. 列。",
+      "files": []
+    }
+  ]
+}

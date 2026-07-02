@@ -167,4 +167,3 @@ icon: "trafficCone", color: "#E9BF78", description
 - 日期一律轉 ISO 8601 再送。
 - API 呼叫失敗時，回報錯誤訊息並詢問是否重試，不要靜默吞掉。
 - 一律透過 MCP tool 操作，不使用 CLI。
-  </content>

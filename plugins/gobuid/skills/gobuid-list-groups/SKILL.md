@@ -75,4 +75,3 @@ mcp__gobuid-mcp-sse__set_context  →  groupId: <選定的 groupId>
 - 用戶以名稱指定 group 時，從 `groups` 比對 `groupName` 取得 `groupId`；同名或找不到時列出候選請用戶確認，不要猜。
 - 設定 context 後，可接續 `/gobuid-list-projects` 列出該 group 底下的 projects。
 - 一律透過 MCP tool 操作，不使用 CLI。
-  </content>

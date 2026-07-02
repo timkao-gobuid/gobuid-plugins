@@ -50,7 +50,18 @@ Task（task_list，隸屬於一個 project）
 ### 日期
 
 - `From` / `To` 為 ISO 8601 date-time 字串，例如 `"2026-06-25T09:00:00Z"`。
-- `IsAllDay: true` 代表全天任務（時間部分忽略）。
+
+> **⚠️ `From` 與 `To` 必須成對填，不能只給一個。** 只送 `To`（或只送 `From`）會導致 webapp 顯示不正確（缺 `from`，日期區間不完整）。**要帶日期就兩個都帶。**
+
+> **使用者只給單一「期限 / 到期日」時（例如「期限為今日」「6/30 前」），仍要同時設 `From` 與 `To`：**
+>
+> - 只到日期（全天）→ `From` 與 `To` 都設成該日，`IsAllDay: true`。
+> - 有到時分（例如「今天 18:00 前」）→ `From` 設起算時間、`To` 設該截止時間，`IsAllDay: false`。
+
+> **`IsAllDay` 控制是否精確到時分秒：**
+>
+> - `IsAllDay: true` → 全天任務，時間部分忽略（只看日期）。
+> - `IsAllDay: false` → 精確到時分秒，`From` / `To` 的時間部分有效。**要帶具體時刻就設 `false`。**
 
 ### 指派 / 通知
 
@@ -148,21 +159,21 @@ mcp__gobuid-mcp-sse__member_query_member_projects_by_page_filter
 
 ### 建立 Task — `..._tasks_post`
 
-| 參數                                  | 必填 | 說明                           |
-| ------------------------------------- | ---- | ------------------------------ |
-| `ProjectId`                           | 是   | 任務所屬專案                   |
-| `Title`                               | 是   | 任務標題                       |
-| `Notes`                               | 否   | 描述                           |
-| `Status`                              | 否   | 預設 `Open`                    |
-| `From` / `To`                         | 否   | 起訖時間（ISO date-time）      |
-| `IsAllDay`                            | 否   | 全天任務                       |
-| `Location` / `Latitude` / `Longitude` | 否   | 地點                           |
-| `AssignUserIds`                       | 否   | 指派人 userId[]                |
-| `NotifyUserIds`                       | 否   | 通知對象 userId[]              |
-| `FileIds`                             | 否   | 附件 file id[]（需先上傳）     |
-| `LinkItems`                           | 否   | 關聯項目 `[{type,id}]`         |
-| `Repeat_*`                            | 否   | 重複規則（見核心概念）         |
-| `SubTasks`                            | 否   | 建立時一併帶入的子任務（見下） |
+| 參數                                  | 必填 | 說明                                            |
+| ------------------------------------- | ---- | ----------------------------------------------- |
+| `ProjectId`                           | 是   | 任務所屬專案                                    |
+| `Title`                               | 是   | 任務標題                                        |
+| `Notes`                               | 否   | 描述                                            |
+| `Status`                              | 否   | 預設 `Open`                                     |
+| `From` / `To`                         | 否   | 起訖時間（ISO date-time），**要帶就兩個成對帶** |
+| `IsAllDay`                            | 否   | `true`=全天；`false`=精確到時分秒               |
+| `Location` / `Latitude` / `Longitude` | 否   | 地點                                            |
+| `AssignUserIds`                       | 否   | 指派人 userId[]                                 |
+| `NotifyUserIds`                       | 否   | 通知對象 userId[]                               |
+| `FileIds`                             | 否   | 附件 file id[]（需先上傳）                      |
+| `LinkItems`                           | 否   | 關聯項目 `[{type,id}]`                          |
+| `Repeat_*`                            | 否   | 重複規則（見核心概念）                          |
+| `SubTasks`                            | 否   | 建立時一併帶入的子任務（見下）                  |
 
 **建立時內嵌子任務 `SubTasks`**（物件陣列，key 用 camelCase）：
 
@@ -239,6 +250,7 @@ status: "Done"
 
 1. 解析 `ProjectId` 與 `AssignUserIds` / `NotifyUserIds`。
 2. 整理欄位（Title 必填；用戶有提到期限/重複/指派才帶對應欄位）。
+   - **有期限/日期時，`From` 與 `To` 一定要成對帶**（只給一個 webapp 會缺 from）。單一到期日就 `From`=`To`=該日；要時分秒設 `IsAllDay: false`，全天設 `true`。
 3. 呼叫 `..._tasks_post`。
 4. 需要子任務時，用回傳的 task id 逐筆呼叫 `..._subtasks`（或建立時帶 `SubTasks`）。
 
@@ -287,8 +299,7 @@ status: "Done"
 - **PUT 是整筆覆寫**：更新前務必先讀現值再合併，否則沒帶到的欄位會被清掉。
 - `AssignUserIds` / `NotifyUserIds` / `FileIds` 是 number[]；人名/檔名先解析成 id。
 - task 用 `Notes`（複數）、subtask 用 `Note`（單數），別寫錯。
+- **日期欄位 `From` / `To` 要帶就成對帶**，不能只給其中一個（只給 `To` 會導致 webapp 缺 `from`、區間不完整）。要精確到時分秒設 `IsAllDay: false`，全天設 `true`。
 - `SubTasks` / `LinkItems` 物件陣列的 key 用 camelCase（`assignUserIds`、`linkItems`…），且需 server 已含 multipart 修正才會生效。
 - 刪除任務前先跟用戶確認，刪 task 會一併刪掉其 subtask。
 - API 呼叫失敗時，回報錯誤訊息並詢問是否重試，不要靜默吞掉。
-  </content>
-  </invoke>

@@ -176,4 +176,3 @@ ProjectId, Name, TotalQty, ActivityUnitId, StartDate, EndDate
 - `TeamIds` / `LinkItems` 等陣列欄位依賴 server 的 multipart 修正才會生效。
 - API 呼叫失敗時，回報錯誤訊息並詢問是否重試，不要靜默吞掉。
 - 一律透過 MCP tool 操作，不使用 CLI。
-  </content>
