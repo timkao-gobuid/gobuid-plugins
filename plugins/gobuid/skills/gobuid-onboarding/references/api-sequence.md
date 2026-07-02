@@ -19,22 +19,26 @@ Budget、Activity、Participants 都靠 sheet 的 `Project Name` join 到某個 
 
 ## 1. Group 設定
 
+> **⚠️ 這兩支必須在 body 帶 `groupId`，不能只靠 `set_context` 的 header。**
+> 只靠 header 會回 403 `errorCode 5`「Only owner or co-owner can operate」——**即使呼叫者就是 Owner** 也一樣。帶上 body 的 `groupId` 才成功。
+> （對比：`group_setting_working_time_put` 只靠 header 就 OK，別被它誤導以為全部都吃 header。）
+
 ### group_update_group_name
 
 `PUT /api/Group/UpdateGroupName`
 
 ```json
-{ "name": "<Account Name>" }
+{ "groupId": <groupId>, "name": "<Account Name>" }
 ```
 
-只送 name（不要連帶送 geofence 欄位）。
+送 `groupId` + `name`（不要連帶送 geofence 欄位）。
 
 ### group_update_group_geofence_radius
 
 `PUT /api/Group/UpdateGroupGeofenceRadius`
 
 ```json
-{ "isGeofenceRadiusCheck": true, "geofenceRadius": <公尺整數> }
+{ "groupId": <groupId>, "isGeofenceRadiusCheck": true, "geofenceRadius": <公尺整數> }
 ```
 
 > `isGeofenceRadiusCheck` 沒設 true 的話，半徑填了也不會生效。
@@ -148,15 +152,21 @@ Budget、Activity、Participants 都靠 sheet 的 `Project Name` join 到某個 
 {
   "emails": ["<email>"],
   "projectIds": [<projectId>],
-  "roleId": <3|4|5>,
+  "roleId": <3|4|5|6>,
   "seatTypeId": <1|2>,
-  "groupRoleId": 6,
+  "groupRoleId": <6|7>,
   "teamIds": [<teamId>, ...]
 }
 ```
 
+- **⚠️ `seatTypeId` / `groupRoleId` / `roleId` 三者的相容組合是後端硬規則，錯了直接 400**（見 `mappings.md` 的相容表）：
+  - **Full（seatTypeId=1）** → `groupRoleId=6`（Member）、`roleId` = 3/4/5（Manager/Internal/External）。
+  - **Light（seatTypeId=2）** → **強制** `groupRoleId=7`、`roleId=6`（Light Member），不管 sheet Role 欄填什麼。
+  - 別再無腦帶 `groupRoleId=6`——那只對 Full 成立。
 - `emails` 是陣列；同一 project、同 role/seat/team 的多人可合併一次邀。role/seat/team 不同的人分開邀。
 - 同一人若要進多個 project，可用 `projectIds` 一次帶多個（但 role/team 要一致）；不一致就分次。
+
+> **防重複邀請的盲點**：`user_query_pending_invitation_users` **只列「系統已有帳號、待接受」的使用者，查不到對尚未註冊 email 送出的邀請**。所以邀請 timeout 後別用它判斷「是否已送出」（會回空陣列而誤判為沒送成功）。要防重複，改看 email 邀請紀錄，或直接以該次呼叫的 `isSucceed` 為準。
 
 ---
 

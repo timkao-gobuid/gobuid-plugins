@@ -83,30 +83,41 @@ Budget 與 Activity **共用同一套單位**。系統預設單位（`isDefault=
 
 ## Participant Role → roleId
 
-sheet 欄位「Role (Manager/Internal/External)」→ 專案角色 `roleId`（`ProjectRoleEnum`，寫死）：
+sheet 欄位「Role」→ 專案角色 `roleId`（`ProjectRoleEnum`，寫死）：
 
-| Sheet 值 | roleId |
-| -------- | ------ |
-| Manager  | 3      |
-| Internal | 4      |
-| External | 5      |
+| Sheet 值     | roleId |
+| ------------ | ------ |
+| Manager      | 3      |
+| Internal     | 4      |
+| External     | 5      |
+| Light Member | 6      |
 
-（Owner=1、CoOwner=2、LightMember=6 不在 CS 表選項內。）
+（Owner=1、CoOwner=2 不在 CS 表選項內。）
 
-## Seat Type → seatTypeId
+## Seat Type × Role 相容性（後端硬規則，會 reject）
 
-sheet 欄位「Seat Type (Full/Light)」→ `seatTypeId`：
+> **⚠️ 這不是軟提醒，是後端硬擋。** Light seat 搭錯角色會直接 400：
+> `Group role is not compatible with the selected seat type's default role.` /
+> `Project role is not compatible with the selected seat type's default role.`
 
-| Sheet 值 | seatTypeId |
-| -------- | ---------- |
-| Full     | 1          |
-| Light    | 2          |
+`seatTypeId`（sheet「Seat Type」）與角色的**唯一合法組合**：
 
-沒填時預設 `1`（Full）。選 Light 時，該成員的 `roleId` 通常應為 LightMember（6）；若 sheet 仍填 Manager/Internal/External，在計畫裡標出讓使用者決定。
+| Seat Type | seatTypeId | groupRoleId           | roleId（專案角色）                  |
+| --------- | ---------- | --------------------- | ----------------------------------- |
+| Full      | 1          | 6（Member）           | 3 Manager / 4 Internal / 5 External |
+| Light     | 2          | **7（Light Member）** | **6（Light Member）**               |
 
-## Group Role 預設
+規則：
 
-`groupRoleId`：邀請必填，CS 表沒有這欄，一律用預設 `6`（General）。
+- **Full seat**：`groupRoleId=6`（API 回傳名稱是 **Member**，不是「General」），`roleId` 用 sheet 填的 Manager/Internal/External（3/4/5）。
+- **Light seat**：**強制** `groupRoleId=7` 且 `roleId=6`（都是 Light Member），**不管 sheet 的 Role 欄填什麼**。
+- 沒填 Seat Type 時預設 Full（1）。
+
+**計畫階段的處理**：若 sheet 出現「Light + Manager/Internal/External」這種不相容組合，**不要照送**（會被 reject）。在計畫裡明確標出並二選一：
+
+1. 自動轉成 Light Member（`groupRoleId=7`, `roleId=6`），或
+2. 提醒使用者改成 Full seat 才能保留該專案角色。
+   預設採 (1) 並在計畫標註，讓使用者有機會改。
 
 ## Participant Team Tags → teamIds（每 group 查詢，id 不固定）
 

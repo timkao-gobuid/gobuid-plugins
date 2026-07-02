@@ -77,7 +77,8 @@ gws sheets spreadsheets values batchGet \
 
 把每一列轉成結構化資料，並用 `references/mappings.md` 把人類可讀的值換成 API 要的 id / 格式。**這是最容易靜默出錯的地方**，務必逐項對照：
 
-- Equipment Ownership、Equipment Type(9類)、Budget Category(7類)、Role、Seat Type、Group Role → **全是寫死對照表**，直接查 `mappings.md`。
+- Equipment Ownership、Equipment Type(9類)、Budget Category(7類)、Role → **寫死對照表**，直接查 `mappings.md`。
+- **Seat Type × Role 相容性是後端硬規則**（錯了直接 400，不是軟提醒）：**Full** seat → `groupRoleId=6`(Member) + roleId 3/4/5；**Light** seat → **強制** `groupRoleId=7` + `roleId=6`(Light Member)，不管 Role 欄填什麼。遇到「Light + Manager/Internal/External」這種不相容組合，計畫階段就要轉換或請使用者二選一，別照送。詳見 `mappings.md` 相容表。
 - **Budget / Activity Unit** → 先比對 `mappings.md` 的 15 個系統預設單位；不在表內的，呼叫 `activity_query_activity_units_by_group_id` 查該 group 是否已有；還是沒有才 `activity_create_activity_unit` 建立，取回 `activityUnitId`。（`%` = id 15，會鎖 `TotalQty=100`。）Budget 與 Activity 共用同一套單位。
 - **Activity 起訖日** → sheet 留空時，沿用該 Activity 所屬 project 的起訖日；有填就用填的。
 - **每週工時陣列**（General 分頁 `A8:C15` 的每週工時表）：sheet 是週一→週日，但 API 的 `weeklyUserAttendanceRecordHours` / `weeklyEquipmentNonWorkingDays` 都是**星期日開頭**，務必重排。工時的起訖時間與 Geofence 取自 General 設定區（`A1:C6`）。詳見 `mappings.md`。
@@ -103,8 +104,8 @@ gws sheets spreadsheets values batchGet \
 
 ```
 1. Group 設定（與 project 無關，可先做）
-   - group_update_group_name（Account Name）
-   - group_update_group_geofence_radius（含 isGeofenceRadiusCheck=true 才生效）
+   - group_update_group_name（Account Name；**body 要帶 groupId**，只靠 header 會 403）
+   - group_update_group_geofence_radius（**body 要帶 groupId**；含 isGeofenceRadiusCheck=true 才生效）
    - group_setting_working_time_put（星期日開頭陣列 + defaultWorkDayHours）
 2. 每個 Project：
    a. project_create_project（驗座標非 0,0）→ 取回 projectId
@@ -119,6 +120,13 @@ gws sheets spreadsheets values batchGet \
 ```
 
 每一步的結果（成功 / 失敗 + 回傳 id）即時記錄，最後產出總結報告。
+
+### 連線 / 逾時 / 冪等（實測踩過的坑）
+
+- **寫入 timeout**：先**查證是否已建立**再重試，避免重複建立。查證要看實際紀錄或該次的 `isSucceed`，**不要靠 `user_query_pending_invitation_users`** 判斷邀請是否送出——它查不到「尚未註冊 email」的邀請，會回空陣列而誤判。
+- **斷線重連後 context 會被重置**：再次呼叫可能出現 `Missing required header: GroupId`，需**重新 `set_context`** 選回原本的 group 再繼續。
+- **OAuth token 中途過期**：非互動 session 無法自動跑 OAuth；token 過期時請使用者到**互動終端用 `/mcp` 重新授權**後再續跑。
+- **後端偶發 503**：屬暫時性，稍後重試（同樣先查證再重試）。
 
 ---
 
