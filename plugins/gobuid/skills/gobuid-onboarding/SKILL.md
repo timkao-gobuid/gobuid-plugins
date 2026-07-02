@@ -33,15 +33,14 @@ allowed-tools: mcp__gobuid-mcp-sse__*, Bash(gws *)
 
 六個資料分頁（欄位順序固定，第一列是標題，資料從第二列起）：
 
-| 分頁           | 欄位                                                                                                                                            |
-| -------------- | ----------------------------------------------------------------------------------------------------------------------------------------------- |
-| `General`      | Setting / Value / Note（key-value：Account Name、Account Owner Email）                                                                          |
-| `Timesheet`    | `A1:C8` 每日工時表（Day / Working Hours / Non-working Day，週一→週日）；`A10:B13` 全域設定（Daily Start Time、Daily End Time、Geofence Radius） |
-| `Equipment`    | Equipment Name / Ownership / Equipment Type / Working Hours/Day                                                                                 |
-| `Budget`       | Project Name / Budget Code Name / Total Quantity / Unit / Category                                                                              |
-| `Activity`     | Project Name / Activity Name / Total Quantity / Unit / Start Date / End Date / Team Tags(選填) / Notes(選填)                                    |
-| `Projects`     | Project Name / Start Date / End Date / Location / Latitude(選填) / Longitude(選填)                                                              |
-| `Participants` | Project Name / Email / Role / Seat Type / Team Tags                                                                                             |
+| 分頁           | 欄位                                                                                                                                                                                                                       |
+| -------------- | -------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- |
+| `General`      | 兩個區塊：`A1:C6` 設定 key-value（Account Name、Account Owner Email、Geofence Radius、Daily Start Time、Daily End Time）；`A8:C15` 每週工時表（Day / Working Hours / Non-working Day，週一→週日）。全部是 group 層級設定。 |
+| `Equipment`    | Equipment Name / Ownership / Equipment Type / Working Hours/Day                                                                                                                                                            |
+| `Budget`       | Project Name / Budget Code Name / Total Quantity / Unit / Category                                                                                                                                                         |
+| `Activity`     | Project Name / Activity Name / Total Quantity / Unit / Start Date / End Date / Team Tags(選填) / Notes(選填)                                                                                                               |
+| `Projects`     | Project Name / Start Date / End Date / Location / Latitude(選填) / Longitude(選填)                                                                                                                                         |
+| `Participants` | Project Name / Email / Role / Seat Type / Team Tags                                                                                                                                                                        |
 
 > **Budget vs Activity**：兩者都用「TotalQty + 單位」，但 **Budget 追資源/預算**、**Activity 追進度**（常用 `%` 單位做 0–100% 進度）。是不同 API、不同分頁，別混。
 
@@ -60,7 +59,7 @@ allowed-tools: mcp__gobuid-mcp-sse__*, Bash(gws *)
 ```bash
 gws sheets spreadsheets values batchGet \
   --params '{"spreadsheetId":"<ID>","ranges":[
-    "General!A1:C12","Timesheet!A1:C8","Timesheet!A10:B13",
+    "General!A1:C15",
     "Equipment!A2:D200","Budget!A2:E200","Activity!A2:H200","Projects!A2:F60","Participants!A2:E400"]}' \
   --format json 2>/dev/null | sed '/Using keyring/d'
 ```
@@ -72,7 +71,7 @@ gws sheets spreadsheets values batchGet \
 - Equipment Ownership、Equipment Type(9類)、Budget Category(7類)、Role、Seat Type、Group Role → **全是寫死對照表**，直接查 `mappings.md`。
 - **Budget / Activity Unit** → 先比對 `mappings.md` 的 15 個系統預設單位；不在表內的，呼叫 `activity_query_activity_units_by_group_id` 查該 group 是否已有；還是沒有才 `activity_create_activity_unit` 建立，取回 `activityUnitId`。（`%` = id 15，會鎖 `TotalQty=100`。）Budget 與 Activity 共用同一套單位。
 - **Activity 起訖日** → sheet 留空時，沿用該 Activity 所屬 project 的起訖日；有填就用填的。
-- **Timesheet 星期陣列**：sheet 是週一→週日，但 API 的 `weeklyUserAttendanceRecordHours` / `weeklyEquipmentNonWorkingDays` 都是**星期日開頭**，務必重排。詳見 `mappings.md`。
+- **每週工時陣列**（General 分頁 `A8:C15` 的每週工時表）：sheet 是週一→週日，但 API 的 `weeklyUserAttendanceRecordHours` / `weeklyEquipmentNonWorkingDays` 都是**星期日開頭**，務必重排。工時的起訖時間與 Geofence 取自 General 設定區（`A1:C6`）。詳見 `mappings.md`。
 - **icon / color** 不在 sheet 裡，套固定預設（見 `mappings.md`）。
 
 對不到 id 的列先記下來，標成「需處理」，不要中止整個流程。

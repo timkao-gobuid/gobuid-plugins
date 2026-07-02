@@ -122,9 +122,11 @@ sheet「Team Tags」欄常見的、每個 group 預設就有的 team tag：
 2. sheet 的 Team Tags 以逗號分隔，逐個 name 去對照取 `id`，收集成 `teamIds` 陣列。
 3. 對照不到的 name → `teams_post`（`{ "name": "<tag>" }`）建立，取回新 `id` 再加入陣列。
 
-## Timesheet 星期陣列（星期日開頭）
+## 每週工時陣列（星期日開頭）
 
-sheet 的每日工時表是 **週一→週日** 排列，但 API 陣列是 **星期日開頭**（index 0 = Sunday）。務必重排：
+工時設定都在 **General 分頁**：設定區 `A1:C6`（含 Daily Start/End Time、Geofence Radius），每週工時表 `A8:C15`（Day / Working Hours / Non-working Day）。
+
+每週工時表是 **週一→週日** 排列，但 API 陣列是 **星期日開頭**（index 0 = Sunday）。務必重排：
 
 | API index | 星期      |
 | --------- | --------- |
